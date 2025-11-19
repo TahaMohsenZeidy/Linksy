@@ -1,0 +1,17 @@
+README.md
+REACT_EXPLANATION.md
+DEVOPS_APPROACHES.md
+MINIO_SETUP.md
+.gitignore
+.vscode
+.idea
+.DS_Store
+.env
+.env.local
+.env.*.local
+.env.prod
+.env.dev
+.env.test
+node_modules
+dist
+*.log

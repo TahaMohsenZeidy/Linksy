@@ -1,0 +1,61 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual Environment - NOT needed in container (we install fresh in Dockerfile)
+linksyvenv/
+venv/
+ENV/
+env/
+
+# Environment variables - handled by docker-compose, NOT in image
+.env
+.env.local
+.env.*.local
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Database files (if any local)
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git (optional - not needed in container)
+.git/
+.gitignore
+
+# Documentation (optional - can include if you want, but not necessary)
+*.md
+!README.md
+
+# Docker files themselves (don't need to copy these into the image)
+Dockerfile
+.dockerignore
+docker-compose.yml
+

@@ -1,0 +1,76 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+linksyvenv/
+venv/
+ENV/
+env/
+*.egg-info/
+dist/
+build/
+*.pyc
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+dist/
+build/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+.env.prod
+.env.dev
+.env.test
+*.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+*.log
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Backups
+volume-backups/
+*.tar.gz
+*.sql
+
+# MinIO data (if stored locally)
+minio-data/
+
+# Keycloak data (if stored locally)
+keycloak-data/
+
+# Temporary files
+*.tmp
+*.temp
+
+# Documentation files (exclude all markdown files)
+*.md
+**/*.md
+
+# Shell scripts (exclude setup/helper scripts, keep essential ones)
+*.sh
+!backend/init_keycloak_db.sh
+!backend/entrypoint.sh
+
