@@ -65,7 +65,8 @@ keycloak-data/
 *.tmp
 *.temp
 
-# Documentation files (exclude all markdown files except main README)
+# Documentation files (exclude all markdown files)
+*.md
 **/*.md
 
 # Shell scripts (exclude setup/helper scripts, keep essential ones)

@@ -581,9 +581,9 @@ function Posts() {
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <span className="text-white text-sm font-semibold">
-                          {getInitial(post.username)}
-                        </span>
+                      <span className="text-white text-sm font-semibold">
+                        {getInitial(post.username)}
+                      </span>
                       )}
                     </div>
                     {/* Username and Date */}
