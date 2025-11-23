@@ -70,7 +70,12 @@ class PostService:
     async def delete_post(self, post_id: int, user_id: int) -> None:
         """Delete a post."""
         try:
-            result = await self.session.execute(select(Post).where(Post.id == post_id))
+            # Load post with relationships to trigger cascade deletion
+            result = await self.session.execute(
+                select(Post)
+                .options(selectinload(Post.comments), selectinload(Post.likes))
+                .where(Post.id == post_id)
+            )
             post = result.scalar_one_or_none()
             if not post:
                 raise PostNotFoundError(post_id)
@@ -78,8 +83,8 @@ class PostService:
                 logging.warning(f"User {user_id} attempted to delete post {post_id} owned by user {post.user_id}")
                 raise ForbiddenException("You can only delete your own posts")
             
-            # Use delete statement for async SQLAlchemy
-            await self.session.execute(delete(Post).where(Post.id == post_id))
+            # Delete the post object - this will cascade delete comments and likes
+            await self.session.delete(post)
             await self.session.commit()
             logging.info(f"Post {post_id} deleted by user {user_id}")
         except (PostNotFoundError, ForbiddenException):

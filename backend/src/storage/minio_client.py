@@ -161,30 +161,22 @@ def get_profile_picture_url(object_name: str, expires_seconds: int = 3600) -> st
         Exception: If unable to generate URL
     """
     try:
-        # Use minio:9000 for connection (backend can reach this)
-        # Generate URL with minio:9000, then replace with localhost:9000 for browsers
+        # FIXED: Use MINIO_PRESIGNED_ENDPOINT directly to generate correct signature
         client = Minio(
-            MINIO_ENDPOINT,  # minio:9000
+            MINIO_PRESIGNED_ENDPOINT,  # localhost:9000 - this generates correct signature
             access_key=MINIO_ACCESS_KEY,
             secret_key=MINIO_SECRET_KEY,
             secure=MINIO_SECURE
         )
         expires = timedelta(seconds=expires_seconds)
         url = client.presigned_get_object(MINIO_BUCKET_NAME, object_name, expires=expires)
-        # Replace minio:9000 with localhost:9000 for browser access
-        url = url.replace("minio:9000", "localhost:9000")
         return url
     except S3Error as e:
         logging.error(f"S3Error generating presigned URL: {e}")
         raise Exception(f"MinIO error: {str(e)}")
     except Exception as e:
-        error_msg = str(e)
-        if "Failed to resolve" in error_msg or "NameResolutionError" in error_msg:
-            logging.error(f"DNS resolution error connecting to MinIO at {MINIO_ENDPOINT}: {e}")
-            raise Exception(f"Cannot connect to MinIO server at {MINIO_ENDPOINT}. Please check your network connection and MinIO configuration.")
-        else:
-            logging.error(f"Error generating presigned URL: {e}")
-            raise Exception(f"Failed to generate profile picture URL: {str(e)}")
+        logging.error(f"Error generating presigned URL: {e}")
+        raise Exception(f"Failed to generate profile picture URL: {str(e)}")
 
 
 def delete_profile_picture(object_name: str) -> bool:
@@ -301,29 +293,22 @@ def get_post_image_url(object_name: str, expires_seconds: int = 3600) -> str:
         Exception: If unable to generate URL
     """
     try:
-        # Use minio:9000 for connection (backend can reach this)
+        # FIXED: Use MINIO_PRESIGNED_ENDPOINT directly to generate correct signature
         client = Minio(
-            MINIO_ENDPOINT,  # minio:9000
+            MINIO_PRESIGNED_ENDPOINT,  # localhost:9000 - this generates correct signature
             access_key=MINIO_ACCESS_KEY,
             secret_key=MINIO_SECRET_KEY,
             secure=MINIO_SECURE
         )
         expires = timedelta(seconds=expires_seconds)
         url = client.presigned_get_object(MINIO_BUCKET_NAME, object_name, expires=expires)
-        # Replace minio:9000 with localhost:9000 for browser access
-        url = url.replace("minio:9000", "localhost:9000")
         return url
     except S3Error as e:
         logging.error(f"S3Error generating presigned URL: {e}")
         raise Exception(f"MinIO error: {str(e)}")
     except Exception as e:
-        error_msg = str(e)
-        if "Failed to resolve" in error_msg or "NameResolutionError" in error_msg:
-            logging.error(f"DNS resolution error connecting to MinIO at {MINIO_ENDPOINT}: {e}")
-            raise Exception(f"Cannot connect to MinIO server at {MINIO_ENDPOINT}. Please check your network connection and MinIO configuration.")
-        else:
-            logging.error(f"Error generating presigned URL: {e}")
-            raise Exception(f"Failed to generate post image URL: {str(e)}")
+        logging.error(f"Error generating presigned URL: {e}")
+        raise Exception(f"Failed to generate post image URL: {str(e)}")
 
 
 def delete_post_image(object_name: str) -> bool:

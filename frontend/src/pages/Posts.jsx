@@ -65,23 +65,11 @@ function Posts() {
       new Map(usersWithPictures.map(u => [u.user_id, u])).values()
     )
 
-    // Fetch presigned URLs for each user
-    const urlPromises = uniqueUsers.map(async ({ user_id, object_name }) => {
-      try {
-        const response = await api.get(`/users/${user_id}/profile-picture-url`)
-        return { user_id, url: response.data.url }
-      } catch (error) {
-        console.error(`Failed to fetch profile picture URL for user ${user_id}:`, error)
-        return null
-      }
-    })
-
-    const results = await Promise.all(urlPromises)
+    // Use proxy endpoints directly (bypasses CORS issues)
     const urlMap = {}
-    results.forEach(result => {
-      if (result) {
-        urlMap[result.user_id] = result.url
-      }
+    uniqueUsers.forEach(({ user_id }) => {
+      // Use the proxy endpoint instead of presigned URLs
+      urlMap[user_id] = `/api/storage/users/${user_id}/profile-picture`
     })
     setProfilePictureUrls(urlMap)
   }
@@ -92,23 +80,11 @@ function Posts() {
       .filter(post => post.image_url)
       .map(post => ({ post_id: post.id }))
     
-    // Fetch presigned URLs for each post image
-    const urlPromises = postsWithImages.map(async ({ post_id }) => {
-      try {
-        const response = await api.get(`/posts/${post_id}/image-url`)
-        return { post_id, url: response.data.url }
-      } catch (error) {
-        console.error(`Failed to fetch post image URL for post ${post_id}:`, error)
-        return null
-      }
-    })
-
-    const results = await Promise.all(urlPromises)
+    // Use proxy endpoints directly (bypasses CORS issues)
     const urlMap = {}
-    results.forEach(result => {
-      if (result) {
-        urlMap[result.post_id] = result.url
-      }
+    postsWithImages.forEach(({ post_id }) => {
+      // Use the proxy endpoint instead of presigned URLs
+      urlMap[post_id] = `/api/storage/posts/${post_id}/image`
     })
     setPostImageUrls(urlMap)
   }
@@ -135,30 +111,19 @@ function Posts() {
       })
       setPosts([response.data, ...posts])
       
-      // Fetch profile picture URL if the new post has one
+      // Use proxy endpoints directly for new post images
       if (response.data.profile_picture_url) {
-        try {
-          const urlResponse = await api.get(`/users/${response.data.user_id}/profile-picture-url`)
-          setProfilePictureUrls(prev => ({
-            ...prev,
-            [response.data.user_id]: urlResponse.data.url
-          }))
-        } catch (error) {
-          console.error('Failed to fetch profile picture URL for new post:', error)
-        }
+        setProfilePictureUrls(prev => ({
+          ...prev,
+          [response.data.user_id]: `/api/storage/users/${response.data.user_id}/profile-picture`
+        }))
       }
       
-      // Fetch post image URL if the new post has one
       if (response.data.image_url) {
-        try {
-          const urlResponse = await api.get(`/posts/${response.data.id}/image-url`)
-          setPostImageUrls(prev => ({
-            ...prev,
-            [response.data.id]: urlResponse.data.url
-          }))
-        } catch (error) {
-          console.error('Failed to fetch post image URL for new post:', error)
-        }
+        setPostImageUrls(prev => ({
+          ...prev,
+          [response.data.id]: `/api/storage/posts/${response.data.id}/image`
+        }))
       }
       
       setNewPostTitle('')
@@ -312,21 +277,10 @@ function Posts() {
         new Map(usersWithPictures.map(u => [u.user_id, u])).values()
       )
 
-      const urlPromises = uniqueUsers.map(async ({ user_id }) => {
-        try {
-          const urlResponse = await api.get(`/users/${user_id}/profile-picture-url`)
-          return { user_id, url: urlResponse.data.url }
-        } catch (error) {
-          return null
-        }
-      })
-
-      const results = await Promise.all(urlPromises)
+      // Use proxy endpoints directly
       const urlMap = {}
-      results.forEach(result => {
-        if (result) {
-          urlMap[result.user_id] = result.url
-        }
+      uniqueUsers.forEach(({ user_id }) => {
+        urlMap[user_id] = `/api/storage/users/${user_id}/profile-picture`
       })
       setProfilePictureUrls(prev => ({ ...prev, ...urlMap }))
     } catch (error) {
@@ -473,17 +427,12 @@ function Posts() {
           : p
       ))
       
-      // Fetch profile picture URL for the new comment author if needed
+      // Use proxy endpoint directly for new comment author
       if (response.data.profile_picture_url) {
-        try {
-          const urlResponse = await api.get(`/users/${response.data.user_id}/profile-picture-url`)
-          setProfilePictureUrls(prev => ({
-            ...prev,
-            [response.data.user_id]: urlResponse.data.url
-          }))
-        } catch (error) {
-          console.error('Failed to fetch profile picture URL:', error)
-        }
+        setProfilePictureUrls(prev => ({
+          ...prev,
+          [response.data.user_id]: `/api/storage/users/${response.data.user_id}/profile-picture`
+        }))
       }
       
       // Keep comments open after posting (don't close)

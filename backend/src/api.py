@@ -4,6 +4,7 @@ from .posts.controller import router as posts_router
 from .users.controller import router as users_router
 from .comments.controller import router as comments_router
 from .likes.controller import router as likes_router
+from .storage.controller import router as storage_router
 
 
 def register_routes(app: FastAPI):
@@ -13,4 +14,5 @@ def register_routes(app: FastAPI):
     app.include_router(users_router)
     app.include_router(comments_router)
     app.include_router(likes_router)
+    app.include_router(storage_router)
 
