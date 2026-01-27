@@ -13,6 +13,13 @@ import logging
 router = APIRouter(prefix="/posts", tags=["posts"])
 
 
+def convert_to_api_url(object_path: Optional[str]) -> Optional[str]:
+    """Convert MinIO object path to API proxy URL."""
+    if not object_path:
+        return None
+    return f"/api/images/{object_path}"
+
+
 @router.post("/", response_model=models.PostResponse, status_code=status.HTTP_201_CREATED)
 async def create_post(
     current_user: CurrentUser,
@@ -53,8 +60,8 @@ async def create_post(
         "content": post.content,
         "user_id": post.user_id,
         "username": post.user.username if post.user else f"user_{post.user_id}",
-        "profile_picture_url": post.user.profile_picture_url if post.user else None,
-        "image_url": post.image_url,
+        "profile_picture_url": convert_to_api_url(post.user.profile_picture_url) if post.user else None,
+        "image_url": convert_to_api_url(post.image_url),
         "comment_count": comment_count,
         "like_count": like_count,
         "is_liked": False,  # New post, not liked yet
@@ -93,8 +100,8 @@ async def get_all_posts(
             "content": post.content,
             "user_id": post.user_id,
             "username": post.user.username if post.user else f"user_{post.user_id}",
-            "profile_picture_url": post.user.profile_picture_url if post.user else None,
-            "image_url": post.image_url,
+            "profile_picture_url": convert_to_api_url(post.user.profile_picture_url) if post.user else None,
+            "image_url": convert_to_api_url(post.image_url),
             "comment_count": comment_count,
             "like_count": like_counts.get(post.id, 0),
             "is_liked": is_liked_map.get(post.id, False),
@@ -132,8 +139,8 @@ async def get_my_posts(
             "content": post.content,
             "user_id": post.user_id,
             "username": post.user.username if post.user else f"user_{post.user_id}",
-            "profile_picture_url": post.user.profile_picture_url if post.user else None,
-            "image_url": post.image_url,
+            "profile_picture_url": convert_to_api_url(post.user.profile_picture_url) if post.user else None,
+            "image_url": convert_to_api_url(post.image_url),
             "comment_count": comment_count,
             "like_count": like_counts.get(post.id, 0),
             "is_liked": is_liked_map.get(post.id, False),

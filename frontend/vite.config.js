@@ -6,7 +6,11 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 3000,
-    host: '0.0.0.0', // Allow external connections
+    host: '0.0.0.0',
+    allowedHosts: [
+      'linksy.homelab.local',
+      '.homelab.local'  // Allows all subdomains of homelab.local
+    ],
     proxy: {
       '/api': {
         // VITE_API_URL is set in docker-compose for Docker, defaults to localhost for local dev

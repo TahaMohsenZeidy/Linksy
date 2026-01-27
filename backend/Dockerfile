@@ -16,9 +16,5 @@ COPY ./src /app/src
 COPY ./alembic.ini /app/alembic.ini
 COPY ./alembic/ /app/alembic/
 
-# Copy and set up entrypoint script
-COPY ./entrypoint.sh /app/entrypoint.sh
-RUN chmod +x /app/entrypoint.sh
-
 # Use entrypoint script (runs migrations and starts app)
-ENTRYPOINT ["/app/entrypoint.sh"]
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]

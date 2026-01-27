@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keycloak
+  namespace: linksy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: keycloak
+  template:
+    metadata:
+      labels:
+        app: keycloak
+    spec:
+      containers:
+        - name: keycloak
+          image: quay.io/keycloak/keycloak:latest
+          command: ["/opt/keycloak/bin/kc.sh", "start-dev"]
+          ports:
+            - containerPort: 8080
+              name: http
+          envFrom:
+            - configMapRef:
+                name: keycloak-config
+            - secretRef:
+                name: keycloak-secret
+          volumeMounts:
+            - name: keycloak-data
+              mountPath: /opt/keycloak/data
+          livenessProbe:
+            exec:
+              command:
+                - /bin/bash
+                - -c
+                - "timeout 1 bash -c 'echo > /dev/tcp/localhost/8080' || exit 1"
+            initialDelaySeconds: 120
+            periodSeconds: 30
+            timeoutSeconds: 10
+
+          readinessProbe:
+            exec:
+              command:
+                - /bin/bash
+                - -c
+                - "timeout 1 bash -c 'echo > /dev/tcp/localhost/8080' || exit 1"
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 10
+      volumes:
+        - name: keycloak-data
+          persistentVolumeClaim:
+            claimName: keycloak-pvc

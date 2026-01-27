@@ -6,4 +6,4 @@ COPY . .
 # Expose Vite dev server port
 EXPOSE 3000
 # Start dev server (--host 0.0.0.0 allows external connections)
-CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]   
+CMD ["npm", "run", "dev"]   

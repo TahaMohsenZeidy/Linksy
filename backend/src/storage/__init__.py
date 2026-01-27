@@ -6,7 +6,8 @@ from .minio_client import (
     ensure_bucket_exists,
     upload_post_image,
     get_post_image_url,
-    delete_post_image
+    delete_post_image,
+    get_image_from_minio
 )
 
 __all__ = [
@@ -17,6 +18,7 @@ __all__ = [
     "ensure_bucket_exists",
     "upload_post_image",
     "get_post_image_url",
-    "delete_post_image"
+    "delete_post_image",
+    "get_image_from_minio"
 ]
 

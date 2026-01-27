@@ -1,5 +1,6 @@
 from fastapi import APIRouter, status, UploadFile, File, HTTPException
 import logging
+from typing import Optional
 
 from ..database.core import DbSession
 from ..auth.service import CurrentUser
@@ -13,6 +14,13 @@ router = APIRouter(
 )
 
 
+def convert_to_api_url(object_path: Optional[str]) -> Optional[str]:
+    """Convert MinIO object path to API proxy URL."""
+    if not object_path:
+        return None
+    return f"/api/images/{object_path}"
+
+
 @router.get("/me", response_model=models.UserResponse)
 async def get_current_user_profile(
     current_user: CurrentUser,
@@ -20,7 +28,13 @@ async def get_current_user_profile(
 ):
     """Get current user's profile."""
     user = await service.get_current_user_profile(db, current_user.id)
-    return user
+    # Convert profile picture path to API URL
+    return {
+        "id": user.id,
+        "username": user.username,
+        "email": user.email,
+        "profile_picture_url": convert_to_api_url(user.profile_picture_url)
+    }
 
 
 @router.put("/change-password", status_code=status.HTTP_200_OK)
@@ -53,7 +67,13 @@ async def update_user_profile(
         username=user_update.username,
         email=user_update.email
     )
-    return user
+    # Convert profile picture path to API URL
+    return {
+        "id": user.id,
+        "username": user.username,
+        "email": user.email,
+        "profile_picture_url": convert_to_api_url(user.profile_picture_url)
+    }
 
 
 @router.post("/me/profile-picture", response_model=models.UserResponse)
@@ -77,7 +97,13 @@ async def upload_profile_picture_endpoint(
             profile_picture_url=object_name
         )
         
-        return user
+        # Convert profile picture path to API URL
+        return {
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "profile_picture_url": convert_to_api_url(user.profile_picture_url)
+        }
         
     except ValueError as e:
         raise HTTPException(

@@ -148,43 +148,17 @@ async def upload_profile_picture(
 
 def get_profile_picture_url(object_name: str, expires_seconds: int = 3600) -> str:
     """
-    Get a presigned URL for a profile picture.
+    Get the API URL for a profile picture (proxy through backend).
     
     Args:
         object_name: The object name/path in MinIO
-        expires_seconds: URL expiration time in seconds (default: 1 hour)
+        expires_seconds: Not used anymore (kept for backward compatibility)
     
     Returns:
-        Presigned URL string
-    
-    Raises:
-        Exception: If unable to generate URL
+        API URL string in format /api/images/{object_name}
     """
-    try:
-        # Use minio:9000 for connection (backend can reach this)
-        # Generate URL with minio:9000, then replace with localhost:9000 for browsers
-        client = Minio(
-            MINIO_ENDPOINT,  # minio:9000
-            access_key=MINIO_ACCESS_KEY,
-            secret_key=MINIO_SECRET_KEY,
-            secure=MINIO_SECURE
-        )
-        expires = timedelta(seconds=expires_seconds)
-        url = client.presigned_get_object(MINIO_BUCKET_NAME, object_name, expires=expires)
-        # Replace minio:9000 with localhost:9000 for browser access
-        url = url.replace("minio:9000", "localhost:9000")
-        return url
-    except S3Error as e:
-        logging.error(f"S3Error generating presigned URL: {e}")
-        raise Exception(f"MinIO error: {str(e)}")
-    except Exception as e:
-        error_msg = str(e)
-        if "Failed to resolve" in error_msg or "NameResolutionError" in error_msg:
-            logging.error(f"DNS resolution error connecting to MinIO at {MINIO_ENDPOINT}: {e}")
-            raise Exception(f"Cannot connect to MinIO server at {MINIO_ENDPOINT}. Please check your network connection and MinIO configuration.")
-        else:
-            logging.error(f"Error generating presigned URL: {e}")
-            raise Exception(f"Failed to generate profile picture URL: {str(e)}")
+    # Return API proxy URL instead of presigned URL
+    return f"/api/images/{object_name}"
 
 
 def delete_profile_picture(object_name: str) -> bool:
@@ -288,42 +262,17 @@ async def upload_post_image(
 
 def get_post_image_url(object_name: str, expires_seconds: int = 3600) -> str:
     """
-    Get a presigned URL for a post image.
+    Get the API URL for a post image (proxy through backend).
     
     Args:
         object_name: The object name/path in MinIO
-        expires_seconds: URL expiration time in seconds (default: 1 hour)
+        expires_seconds: Not used anymore (kept for backward compatibility)
     
     Returns:
-        Presigned URL string
-    
-    Raises:
-        Exception: If unable to generate URL
+        API URL string in format /api/images/{object_name}
     """
-    try:
-        # Use minio:9000 for connection (backend can reach this)
-        client = Minio(
-            MINIO_ENDPOINT,  # minio:9000
-            access_key=MINIO_ACCESS_KEY,
-            secret_key=MINIO_SECRET_KEY,
-            secure=MINIO_SECURE
-        )
-        expires = timedelta(seconds=expires_seconds)
-        url = client.presigned_get_object(MINIO_BUCKET_NAME, object_name, expires=expires)
-        # Replace minio:9000 with localhost:9000 for browser access
-        url = url.replace("minio:9000", "localhost:9000")
-        return url
-    except S3Error as e:
-        logging.error(f"S3Error generating presigned URL: {e}")
-        raise Exception(f"MinIO error: {str(e)}")
-    except Exception as e:
-        error_msg = str(e)
-        if "Failed to resolve" in error_msg or "NameResolutionError" in error_msg:
-            logging.error(f"DNS resolution error connecting to MinIO at {MINIO_ENDPOINT}: {e}")
-            raise Exception(f"Cannot connect to MinIO server at {MINIO_ENDPOINT}. Please check your network connection and MinIO configuration.")
-        else:
-            logging.error(f"Error generating presigned URL: {e}")
-            raise Exception(f"Failed to generate post image URL: {str(e)}")
+    # Return API proxy URL instead of presigned URL
+    return f"/api/images/{object_name}"
 
 
 def delete_post_image(object_name: str) -> bool:
@@ -344,4 +293,45 @@ def delete_post_image(object_name: str) -> bool:
     except S3Error as e:
         logging.error(f"Error deleting post image: {e}")
         return False
+
+
+def get_image_from_minio(object_name: str) -> tuple[bytes, str]:
+    """
+    Retrieve an image from MinIO.
+    
+    Args:
+        object_name: The object name/path in MinIO
+    
+    Returns:
+        Tuple of (image_bytes, content_type)
+    
+    Raises:
+        Exception: If image retrieval fails
+    """
+    try:
+        client = get_minio_client()
+        response = client.get_object(MINIO_BUCKET_NAME, object_name)
+        
+        # Read the image data
+        image_data = response.read()
+        
+        # Determine content type from object name
+        content_type = "image/jpeg"  # Default
+        if object_name.lower().endswith('.png'):
+            content_type = "image/png"
+        elif object_name.lower().endswith('.webp'):
+            content_type = "image/webp"
+        elif object_name.lower().endswith(('.jpg', '.jpeg')):
+            content_type = "image/jpeg"
+        
+        response.close()
+        response.release_conn()
+        
+        return image_data, content_type
+    except S3Error as e:
+        logging.error(f"S3Error retrieving image from MinIO: {e}")
+        raise Exception(f"Image not found: {object_name}")
+    except Exception as e:
+        logging.error(f"Error retrieving image from MinIO: {e}")
+        raise Exception(f"Failed to retrieve image: {str(e)}")
 

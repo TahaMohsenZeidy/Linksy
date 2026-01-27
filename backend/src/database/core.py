@@ -9,7 +9,7 @@ load_dotenv()
 
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "postgresql+asyncpg://postgres:postgres@localhost:5432/linksy"
+    "postgresql+asyncpg://postgres:postgres@postgres:5432/linksy"
 )
 
 engine = create_async_engine(
