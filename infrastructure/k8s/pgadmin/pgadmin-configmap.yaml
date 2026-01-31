@@ -1,8 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: pgadmin-config
-  namespace: linksy
-data:
-  PGADMIN_CONFIG_SERVER_MODE: 'False'
-  PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'

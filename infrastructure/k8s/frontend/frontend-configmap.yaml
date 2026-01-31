@@ -1,9 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: frontend-config
-  namespace: linksy
-data:
-  VITE_API_URL: "http://backend-service:8000"
-  # Add other frontend environment variables here
-  # VITE_KEYCLOAK_URL: "http://keycloak-service:8080"
